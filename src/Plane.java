@@ -14,7 +14,7 @@ public class Plane {
 	private int max_lux;
 	private int total_seat;
 
-	public Plane(int tu_id) {
+	private Plane(int tu_id) {
 
 		super();
 		this.tu_id = tu_id;
@@ -37,13 +37,6 @@ public class Plane {
 		}
 	}
 
-	public int getTu_id() {
-		return tu_id;
-	}
-
-	public void setTu_id(int tu_id) {
-		this.tu_id = tu_id;
-	}
 
 	public int getPlane_id() {
 		return plane_id;
@@ -83,7 +76,7 @@ public class Plane {
 
 			int seat_matrix[][] = null;
 			Connection connection;
-			connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+			connection = DriverManager.getConnection("jdbc:sqlite:plane.db");
 
 			String query3 = "SELECT * FROM Seating ";
 
@@ -134,7 +127,7 @@ public class Plane {
 
 	}
 
-	public static void print2D(int mat[][]) {
+	private static void print2D(int mat[][]) {
 		// Loop through all rows
 		for (int[] row : mat)
 
