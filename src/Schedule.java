@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.Arrays;
 
 
 public class Schedule {
@@ -63,7 +64,7 @@ public class Schedule {
 									preparedStatement1.setInt(6, date1_planes[0]);
 									date1_planes[0] += 1;
 							// if plane 1 is full books plane 2
-								} else if (date1_planes[1] <= 8) {
+								} else {
 									preparedStatement1.setInt(3, plane_tuid + 1);
 									preparedStatement1.setString(5, date);
 									preparedStatement1.setInt(6, date1_planes[1]);
@@ -81,7 +82,7 @@ public class Schedule {
 									date1_planes[1] += 1;
 
 								// if plane 2 is full goes to plane 3
-								} else if (date1_planes[2] <= 14) {
+								} else  {
 									preparedStatement1.setInt(3, plane_tuid + 1);
 									preparedStatement1.setString(5, date);
 									preparedStatement1.setInt(6, date1_planes[2]);
@@ -99,7 +100,7 @@ public class Schedule {
 									date1_planes[2] += 1;
 
 								// if plane 3 is full goes to next day plane 1
-								} else if (date2_planes[0] <= 10) {
+								} else  {
 									preparedStatement1.setInt(3, plane_tuid-2);
 									preparedStatement1.setString(5, "12/02/2020");
 									preparedStatement1.setInt(6, date2_planes[0]);
@@ -127,7 +128,7 @@ public class Schedule {
 								date2_planes[0] += 1;
 
 							// if plane 1 is full goes to plane 2
-							} else if (date2_planes[1] <= 8) {
+							} else  {
 								preparedStatement1.setInt(3, plane_tuid+1);
 								preparedStatement1.setString(5, date);
 								preparedStatement1.setInt(6, date2_planes[1]);
@@ -145,7 +146,7 @@ public class Schedule {
 								date2_planes[1] += 1;
 
 							// if plane 2 is full goes to plane 3
-							} else if (date2_planes[2] <= 14) {
+							} else  {
 								preparedStatement1.setInt(3, plane_tuid+1);
 								preparedStatement1.setString(5, date);
 								preparedStatement1.setInt(6, date2_planes[2]);
@@ -162,8 +163,8 @@ public class Schedule {
 								date2_planes[2] += 1;
 							}
 
-							else if (date3_planes[0] <= 10) {
-								preparedStatement1.setInt(3, plane_tuid-2);
+							else  {
+								preparedStatement1.setInt(3, plane_tuid - 2);
 								preparedStatement1.setString(5, "12/03/2020");
 								preparedStatement1.setInt(6, date3_planes[0]);
 								date3_planes[0] += 1;
@@ -179,7 +180,9 @@ public class Schedule {
 
 			preparedStatement3.close();
 
-
+			System.out.println(Arrays.toString(date1_planes));
+			System.out.println(Arrays.toString(date2_planes));
+			System.out.println(Arrays.toString(date3_planes));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
