@@ -17,7 +17,7 @@ public class Main {
             Class.forName("org.sqlite.JDBC");
             System.out.println("Load driver success");
 
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:plane.db");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\Noor PC\\IdeaProjects\\Plane_Scheduler\\plane.db");
 
 
             String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
