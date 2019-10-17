@@ -1,3 +1,4 @@
+import java.util.Date;
 
 public class Seating {
 	public Seating(  int cus_tuid, String plane_tuid, String seat_type, String date) {
@@ -38,11 +39,9 @@ public class Seating {
 		this.seat_type = seat_type;
 	}
 	public String getDate() {
-		return date;
+		return  date;
 	}
-	public void setDate(String date) {
-		this.date = date;
-	}
+	public void setDate(String date) { this.date = date; }
 	public int getTuid() {
 		return tuid;
 	}
@@ -50,13 +49,7 @@ public class Seating {
 		this.tuid = tuid;
 	}
 
-//	public String getStatus() {
-//		return status;
-//	}
-//
-//	public void setStatus(String status) {
-//		this.status = status;
-//	}
+
 	
 	
 }

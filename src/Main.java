@@ -8,7 +8,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Main {
 
@@ -51,7 +53,7 @@ public class Main {
                 preparedStatement2.setInt(1, listSeating.get(i).getCus_tuid());
                 preparedStatement2.setString(2, listSeating.get(i).getPlane_tuid());
                 preparedStatement2.setString(3, listSeating.get(i).getSeat_type());
-                preparedStatement2.setString(4, listSeating.get(i).getDate());
+                preparedStatement2.setString(4,  listSeating.get(i).getDate());
                 preparedStatement2.executeUpdate();
                 System.out.println("Insert success record:" + (i + 1));
             }
@@ -140,6 +142,8 @@ public class Main {
 
                     if (strSeating[0].equals("S")) {
                         //source_tuid ++;
+
+
                         System.out.println(source_tuid);
                         System.out.println(strSeating[0]);
                         listResult.add(new Seating(Integer.parseInt(strSeating[1]), strSeating[2], strSeating[3],
