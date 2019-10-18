@@ -38,7 +38,7 @@ public class Schedule {
 
     		PreparedStatement preparedStatement1 = connection.prepareStatement(queryIn);
 //
-//			int i = 1;
+//			int i = 1;a
 //
 //			int date1_planes [] = {1,1,1};
 //
