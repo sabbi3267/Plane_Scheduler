@@ -19,7 +19,7 @@ public class Main {
             Class.forName("org.sqlite.JDBC");
             System.out.println("Load driver success");
 
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\Noor PC\\IdeaProjects\\Plane_Scheduler\\plane.db");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
 
 
             String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
@@ -32,8 +32,8 @@ public class Main {
             PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
 
             // Get list product from file text
-            ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("plane.txt");
-            ArrayList<Seating> listSeating = getListSeatingFromTextFile("plane.txt");
+            ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
+            ArrayList<Seating> listSeating = getListSeatingFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
 
             // Insert list to db
 
