@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class Schedule {
@@ -11,15 +12,10 @@ public class Schedule {
 
 	public static void main(String[] args) throws SQLException {
 
-//        int seat = available("12/01/2020",1);
-//
-//        System.out.println(seat);
-//
-//        add_seat("12/01/2020",1,seat);
-//
-//        seat = available("12/01/2020",1);
-//
-//        System.out.println(seat);
+        int seat = available("12/01/2020",1);
+
+        System.out.println(seat);
+
 
         try {
 
@@ -36,7 +32,7 @@ public class Schedule {
             String queryIn = "INSERT INTO Schedule  VALUES(?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement1 = connection.prepareStatement(queryIn);
 
-            int i = 1;
+            int i = 0;
 
 
             // iterate through the java resultset
@@ -54,13 +50,12 @@ public class Schedule {
                 preparedStatement1.setInt(2, cus_tuid);
                 preparedStatement1.setString(4, seat_type);
 
-
+                i++;
                 // checks if a vip
                 if (seat_type.equals("V")) {
 
                     //checks teh date
                     int seat_avail  = available(date,plane_tuid);
-
 
                         //checks the plane
                         switch (plane_tuid) {
@@ -69,16 +64,18 @@ public class Schedule {
                             case 1:
                                 //if plane 1 is not full books plane 1
                                 if (seat_avail < 11) {
+
                                     preparedStatement1.setInt(3, plane_tuid);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,1,seat_avail);
+
+
                                     // if plane 1 is full books plane 2
                                 } else {
                                     preparedStatement1.setInt(3, plane_tuid + 1);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid+1,seat_avail);
+
                                 }
                                 break;
                             case 0:
@@ -87,13 +84,13 @@ public class Schedule {
                                     preparedStatement1.setInt(3, plane_tuid+1);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid+1,seat_avail);
+
                                     // if plane 1 is full books plane 2
                                 } else {
                                     preparedStatement1.setInt(3, plane_tuid + 2);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid+2,seat_avail);
+
                                 }
                                 break;
                             // if passenger wants plane 2
@@ -104,14 +101,14 @@ public class Schedule {
                                     preparedStatement1.setInt(3, plane_tuid);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid,seat_avail);
+
 
                                     // if plane 2 is full goes to plane 3
                                 } else  {
                                     preparedStatement1.setInt(3, plane_tuid + 1);
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid+1,seat_avail);
+
                                 }
                                 break;
                             // if passenger wants plane 3
@@ -123,7 +120,7 @@ public class Schedule {
 
                                     preparedStatement1.setString(5, date);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(date,plane_tuid,seat_avail);
+
 
                                     // if plane 3 is full goes to next day plane 1
                                 } else  {
@@ -137,7 +134,7 @@ public class Schedule {
                                                     String addedDate = sdf.format(c.getTime());
                                     preparedStatement1.setString(5, addedDate);
                                     preparedStatement1.setInt(6, seat_avail);
-                                    add_seat(addedDate,plane_tuid-2,seat_avail);
+
                                 }
                                 break;
                         }
@@ -159,13 +156,13 @@ public class Schedule {
                                 preparedStatement1.setInt(3, plane_tuid);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,1,seat_avail);
+
                                 // if plane 1 is full books plane 2
                             } else {
                                 preparedStatement1.setInt(3, plane_tuid + 1);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid+1,seat_avail);
+
                             }
                             break;
                         case 0:
@@ -174,13 +171,13 @@ public class Schedule {
                                 preparedStatement1.setInt(3, plane_tuid+1);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid+1,seat_avail);
+
                                 // if plane 1 is full books plane 2
                             } else {
                                 preparedStatement1.setInt(3, plane_tuid + 2);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid+2,seat_avail);
+
                             }
                             break;
                         // if passenger wants plane 2
@@ -191,14 +188,14 @@ public class Schedule {
                                 preparedStatement1.setInt(3, plane_tuid);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid,seat_avail);
+
 
                                 // if plane 2 is full goes to plane 3
                             } else  {
                                 preparedStatement1.setInt(3, plane_tuid + 1);
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid+1,seat_avail);
+
                             }
                             break;
                         // if passenger wants plane 3
@@ -210,7 +207,7 @@ public class Schedule {
 
                                 preparedStatement1.setString(5, date);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(date,plane_tuid,seat_avail);
+
 
                                 // if plane 3 is full goes to next day plane 1
                             } else  {
@@ -224,7 +221,7 @@ public class Schedule {
                                 String addedDate = sdf.format(c.getTime());
                                 preparedStatement1.setString(5, addedDate);
                                 preparedStatement1.setInt(6, seat_avail);
-                                add_seat(addedDate,plane_tuid-2,seat_avail);
+
                             }
                             break;
                     }
@@ -236,7 +233,7 @@ public class Schedule {
 
                 preparedStatement1.executeUpdate();
                 i++;
-                preparedStatement1.close();
+
             }
 
             preparedStatement3.close();
@@ -266,7 +263,7 @@ public class Schedule {
         connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
 
         //prepare the statement to get the data
-        String avail_out = "Select * From Date_time WHERE Date = ? AND plane_id = ? ";
+        String avail_out = "Select COUNT(Customer_tuid) From Schedule WHERE Flight_Date = ? AND Flight_tuid = ? ";
         PreparedStatement date_time = connection.prepareStatement(avail_out);
         date_time.setString(1, date);
         date_time.setInt(2, plane_tuid);
@@ -277,7 +274,7 @@ public class Schedule {
 
         int recent_seat =0;
 
-        recent_seat = avail_rs.getInt("seat_taken");
+        recent_seat = avail_rs.getInt("COUNT(Customer_tuid)");
 
         date_time.close();
 
@@ -288,20 +285,11 @@ public class Schedule {
     }
 
 
-    static  void add_seat (String date,int plane_tuid, int recent_seat ) throws SQLException {
-        // gets available seats on the current plane
+    static List<Object> assignSeat(String date, int plane_tuid){
 
-        Connection connection;
-        connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
 
-        String avail_in = "UPDATE Date_time SET seat_taken = ? WHERE Date = ? AND plane_id = ? ";
-        PreparedStatement avail_prepare = connection.prepareStatement(avail_in);
-        recent_seat++;
-        avail_prepare.setInt(1,recent_seat);
-        avail_prepare.setString(2,date);
-        avail_prepare.setInt(3,plane_tuid);
-        avail_prepare.executeUpdate();
-
-        avail_prepare.close();
     }
+
+
+
 }
