@@ -3,14 +3,11 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
+
 
 public class Main {
 
@@ -27,9 +24,9 @@ public class Main {
             String query2 = "INSERT INTO Seating  VALUES( ?, ?, ?, ?)";
 
             // Create prepare statement
-            PreparedStatement preparedStatement1 = connection.prepareStatement(query1);
+            PreparedStatement passenger_in = connection.prepareStatement(query1);
 
-            PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
+            PreparedStatement seating_req_in = connection.prepareStatement(query2);
 
             // Get list product from file text
             ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
@@ -38,25 +35,110 @@ public class Main {
             // Insert list to db
 
             for (int i = 0; i < listPassenger.size(); i++) {
-                preparedStatement1.setInt(1, listPassenger.get(i).getTu_id());
-                preparedStatement1.setString(2, listPassenger.get(i).getFirst_I());
-                preparedStatement1.setString(3, listPassenger.get(i).getMiddle_I());
-                preparedStatement1.setString(4, listPassenger.get(i).getLast_Name());
-                preparedStatement1.setString(5, listPassenger.get(i).getContact_no());
-                preparedStatement1.executeUpdate();
+                passenger_in.setInt(1, listPassenger.get(i).getTu_id());
+                passenger_in.setString(2, listPassenger.get(i).getFirst_I());
+                passenger_in.setString(3, listPassenger.get(i).getMiddle_I());
+                passenger_in.setString(4, listPassenger.get(i).getLast_Name());
+                passenger_in.setString(5, listPassenger.get(i).getContact_no());
+                passenger_in.executeUpdate();
                 System.out.println("Insert success record:" + (i + 1));
 
             }
 
             for (int i = 0; i < listSeating.size(); i++) {
                 //preparedStatement2.setInt(1, listSeating.get(i).getTuid());
-                preparedStatement2.setInt(1, listSeating.get(i).getCus_tuid());
-                preparedStatement2.setString(2, listSeating.get(i).getPlane_tuid());
-                preparedStatement2.setString(3, listSeating.get(i).getSeat_type());
-                preparedStatement2.setString(4,  listSeating.get(i).getDate());
-                preparedStatement2.executeUpdate();
+                seating_req_in.setInt(1, listSeating.get(i).getCus_tuid());
+                seating_req_in.setString(2, listSeating.get(i).getPlane_tuid());
+                seating_req_in.setString(3, listSeating.get(i).getSeat_type());
+                seating_req_in.setString(4,  listSeating.get(i).getDate());
+                seating_req_in.executeUpdate();
                 System.out.println("Insert success record:" + (i + 1));
             }
+
+
+            String fetch_seating_req = "SELECT * FROM Seating ";
+            Statement fetch_seat_req_statement = connection.createStatement();
+            ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
+
+
+            //for inserting the data
+            String schedule_in = "INSERT INTO Schedule  VALUES( ?, ?, ?, ?, ?, ?)";
+            PreparedStatement schedule_in_statement = connection.prepareStatement(schedule_in);
+
+            int i = 1;
+
+
+            // iterate through the java resultset
+            while (rs.next()) {
+                int cus_tuid = rs.getInt("Cus_tuid");
+                int plane_tuid = rs.getInt("Plane_tuid");
+                String seat_type = rs.getString("Seat_type");
+                String date = rs.getString("Date");
+
+
+
+                System.out.format("%s %s %s %s\n", cus_tuid, plane_tuid, seat_type, date);
+
+                schedule_in_statement.setInt(1, i);
+                schedule_in_statement.setInt(2, cus_tuid);
+                schedule_in_statement.setString(4, seat_type);
+
+                i++;
+                // checks if a vip
+                if (seat_type.equals("V")) {
+
+                    if(plane_tuid==0){
+                        plane_tuid = 1;
+                    }
+
+                    //checks teh date
+                    List<Object> assigned_seat = assignSeat(date,plane_tuid);
+
+
+
+                    schedule_in_statement.setString(3,String.valueOf(assigned_seat.get(0)));
+
+                    int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
+                    schedule_in_statement.setInt(5,plane);
+
+                    int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
+                    schedule_in_statement.setInt(6,seat_no+1);
+
+                    //if passenger wants date 2
+                }
+
+                if (seat_type.equals("L")) {
+
+                    //checks teh date
+
+                    if(plane_tuid==0){
+                        plane_tuid = 1;
+                    }
+
+                    List <Object> assigned_seat = assignSeat(date,plane_tuid);
+
+
+
+                    schedule_in_statement.setString(3,String.valueOf(assigned_seat.get(0)));
+
+                    int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
+                    schedule_in_statement.setInt(5,plane);
+
+                    int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
+                    schedule_in_statement.setInt(6,seat_no+1);
+
+                    //if passenger wants date 2
+                }
+
+                schedule_in_statement.executeUpdate();
+                //i++;
+
+            }
+
+            fetch_seat_req_statement.close();
+
+
+
 
 
         } catch (Exception e) {
@@ -168,5 +250,90 @@ public class Main {
         }
         return listResult;
     }
+
+
+    static int available(String date,int plane_tuid ) throws SQLException {
+        // gets available seats on the current plane
+        Connection connection;
+        connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+
+        //prepare the statement to get the data
+        String avail_out = "Select COUNT(Customer_tuid) From Schedule WHERE Flight_Date = ? AND Flight_tuid = ? ";
+        PreparedStatement date_time = connection.prepareStatement(avail_out);
+        date_time.setString(1, date);
+        date_time.setInt(2, plane_tuid);
+
+        //getting the data in a resultset
+        ResultSet avail_rs;
+        avail_rs = date_time.executeQuery();
+
+        int recent_seat =1;
+
+        recent_seat = avail_rs.getInt("COUNT(Customer_tuid)");
+
+        date_time.close();
+
+        connection.close();
+        return recent_seat;
+
+
+    }
+
+
+    static List<Object> assignSeat(String date, int plane_tuid) throws SQLException, ParseException {
+
+
+        int last_seat = available(date,plane_tuid);
+
+        System.out.println(last_seat);
+        int max = 0;
+
+        switch (plane_tuid){
+            case 1 :
+                max =10;
+                break;
+            case 2 :
+                max = 8;
+                break;
+            case 3 :
+                max = 14;
+                break;
+
+        }
+
+        if (max > last_seat){
+
+
+            return  Arrays.asList(date,plane_tuid,last_seat);
+        }
+        else {
+            plane_tuid++;
+            if(plane_tuid < 4){
+                assignSeat(date,plane_tuid);
+            }
+            else {
+
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+                Calendar c = Calendar.getInstance();
+                c.setTime(sdf.parse(date));
+                //Incrementing the date by 1 day
+                c.add(Calendar.DAY_OF_MONTH, 1);
+
+                String addedDate = sdf.format(c.getTime());
+
+                plane_tuid -=1;
+
+
+
+                assignSeat(addedDate,plane_tuid);
+            }
+        }
+
+
+        return assignSeat(date,plane_tuid);
+
+    }
+
 
 }
