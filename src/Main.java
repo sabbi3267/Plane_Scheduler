@@ -95,14 +95,17 @@ public class Main {
                     List<Object> assigned_seat = assignSeat(date,plane_tuid);
 
 
-
-                    schedule_in_statement.setString(3,String.valueOf(assigned_seat.get(0)));
+                    String assigned_date = String.valueOf(assigned_seat.get(0));
+                    schedule_in_statement.setString(3,assigned_date);
 
                     int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
                     schedule_in_statement.setInt(5,plane);
 
                     int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
                     schedule_in_statement.setInt(6,seat_no+1);
+
+                    System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
+                    System.out.println("");
 
                     //if passenger wants date 2
                 }
@@ -118,14 +121,17 @@ public class Main {
                     List <Object> assigned_seat = assignSeat(date,plane_tuid);
 
 
-
-                    schedule_in_statement.setString(3,String.valueOf(assigned_seat.get(0)));
+                    String assigned_date = String.valueOf(assigned_seat.get(0));
+                    schedule_in_statement.setString(3,assigned_date);
 
                     int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
                     schedule_in_statement.setInt(5,plane);
 
                     int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
                     schedule_in_statement.setInt(6,seat_no+1);
+
+                    System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
+                    System.out.println("");
 
                     //if passenger wants date 2
                 }
@@ -285,7 +291,7 @@ public class Main {
 
         int last_seat = available(date,plane_tuid);
 
-        System.out.println(last_seat);
+
         int max = 0;
 
         switch (plane_tuid){
