@@ -178,7 +178,7 @@ public class Main {
                     strPassenger = line.split(" ");
 
                     if (strPassenger[0].equals("P")) {
-                        System.out.println(strPassenger[0]);
+
                         listResult.add(new Passenger(Integer.parseInt(strPassenger[1]), strPassenger[2],
                                 strPassenger[3], strPassenger[4], strPassenger[5]));
                     }
@@ -232,8 +232,7 @@ public class Main {
                         //source_tuid ++;
 
 
-                        System.out.println(source_tuid);
-                        System.out.println(strSeating[0]);
+
                         listResult.add(new Seating(Integer.parseInt(strSeating[1]), strSeating[2], strSeating[3],
                                 strSeating[4]));
                     }
