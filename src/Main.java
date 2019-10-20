@@ -14,7 +14,8 @@ public class Main {
     public static void main(String[] args) {
         try {
             Class.forName("org.sqlite.JDBC");
-            System.out.println("Load driver success");
+
+
 
             Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
 
@@ -56,95 +57,9 @@ public class Main {
             }
 
 
-            String fetch_seating_req = "SELECT * FROM Seating ";
-            Statement fetch_seat_req_statement = connection.createStatement();
-            ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
+            assign_vips();
 
-
-            //for inserting the data
-            String schedule_in = "INSERT INTO Schedule  VALUES( ?, ?, ?, ?, ?, ?)";
-            PreparedStatement schedule_in_statement = connection.prepareStatement(schedule_in);
-
-            int i = 1;
-
-
-            // iterate through the java resultset
-            while (rs.next()) {
-                int cus_tuid = rs.getInt("Cus_tuid");
-                int plane_tuid = rs.getInt("Plane_tuid");
-                String seat_type = rs.getString("Seat_type");
-                String date = rs.getString("Date");
-
-
-
-                System.out.format("%s %s %s %s\n", cus_tuid, plane_tuid, seat_type, date);
-
-                schedule_in_statement.setInt(1, i);
-                schedule_in_statement.setInt(2, cus_tuid);
-                schedule_in_statement.setString(4, seat_type);
-
-                i++;
-                // checks if a vip
-                if (seat_type.equals("V")) {
-
-                    if(plane_tuid==0){
-                        plane_tuid = 1;
-                    }
-
-                    //checks teh date
-                    List<Object> assigned_seat = assignSeat(date,plane_tuid);
-
-
-                    String assigned_date = String.valueOf(assigned_seat.get(0));
-                    schedule_in_statement.setString(3,assigned_date);
-
-                    int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
-                    schedule_in_statement.setInt(5,plane);
-
-                    int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
-                    schedule_in_statement.setInt(6,seat_no+1);
-
-                    System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
-                    System.out.println("");
-
-                    //if passenger wants date 2
-                }
-
-                if (seat_type.equals("L")) {
-
-                    //checks teh date
-
-                    if(plane_tuid==0){
-                        plane_tuid = 1;
-                    }
-
-                    List <Object> assigned_seat = assignSeat(date,plane_tuid);
-
-
-                    String assigned_date = String.valueOf(assigned_seat.get(0));
-                    schedule_in_statement.setString(3,assigned_date);
-
-                    int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
-                    schedule_in_statement.setInt(5,plane);
-
-                    int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
-                    schedule_in_statement.setInt(6,seat_no+1);
-
-                    System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
-                    System.out.println("");
-
-                    //if passenger wants date 2
-                }
-
-                schedule_in_statement.executeUpdate();
-                //i++;
-
-            }
-
-            fetch_seat_req_statement.close();
-
-
-
+            assign_lux() ;
 
 
         } catch (Exception e) {
@@ -337,6 +252,148 @@ public class Main {
 
 
         return assignSeat(date,plane_tuid);
+
+    }
+
+    static void assign_vips() throws SQLException, ParseException {
+
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+
+
+        String fetch_seating_req = "SELECT * FROM Seating ";
+        Statement fetch_seat_req_statement = connection.createStatement();
+        ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
+
+
+        //for inserting the data
+        String schedule_in = "INSERT INTO Schedule  VALUES( ?, ?, ?, ?, ?, ?)";
+        PreparedStatement schedule_in_statement = connection.prepareStatement(schedule_in);
+
+        int i = 1;
+
+
+        // iterate through the java resultset
+        while (rs.next()) {
+            int cus_tuid = rs.getInt("Cus_tuid");
+            int plane_tuid = rs.getInt("Plane_tuid");
+            String seat_type = rs.getString("Seat_type");
+            String date = rs.getString("Date");
+
+
+
+            System.out.format("%s %s %s %s\n", cus_tuid, plane_tuid, seat_type, date);
+
+            schedule_in_statement.setInt(1, i);
+            schedule_in_statement.setInt(2, cus_tuid);
+            schedule_in_statement.setString(4, seat_type);
+
+            i++;
+            // checks if a assign_vips
+
+
+            if (seat_type.equals("V")) {
+
+                if(plane_tuid==0){
+                    plane_tuid = 1;
+                }
+
+                //checks teh date
+                List<Object> assigned_seat = assignSeat(date,plane_tuid);
+
+
+                String assigned_date = String.valueOf(assigned_seat.get(0));
+                schedule_in_statement.setString(3,assigned_date);
+
+                int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
+                schedule_in_statement.setInt(5,plane);
+
+                int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
+                schedule_in_statement.setInt(6,seat_no+1);
+
+                System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
+                System.out.println("");
+
+                schedule_in_statement.executeUpdate();
+                //if passenger wants date 2
+            }
+
+
+        }
+
+        fetch_seat_req_statement.close();
+
+
+
+    }
+
+    static void assign_lux() throws SQLException, ParseException {
+
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+
+
+        String fetch_seating_req = "SELECT * FROM Seating ";
+        Statement fetch_seat_req_statement = connection.createStatement();
+        ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
+
+
+        //for inserting the data
+        String schedule_in = "INSERT INTO Schedule  VALUES( ?, ?, ?, ?, ?, ?)";
+        PreparedStatement schedule_in_statement = connection.prepareStatement(schedule_in);
+
+        int i = 1;
+
+
+        // iterate through the java resultset
+        while (rs.next()) {
+            int cus_tuid = rs.getInt("Cus_tuid");
+            int plane_tuid = rs.getInt("Plane_tuid");
+            String seat_type = rs.getString("Seat_type");
+            String date = rs.getString("Date");
+
+
+
+            System.out.format("%s %s %s %s\n", cus_tuid, plane_tuid, seat_type, date);
+
+            schedule_in_statement.setInt(1, i);
+            schedule_in_statement.setInt(2, cus_tuid);
+            schedule_in_statement.setString(4, seat_type);
+
+            i++;
+            // checks if a assign_vips
+
+
+            if (seat_type.equals("L")) {
+
+                if(plane_tuid==0){
+                    plane_tuid = 1;
+                }
+
+                //checks teh date
+                List<Object> assigned_seat = assignSeat(date,plane_tuid);
+
+
+                String assigned_date = String.valueOf(assigned_seat.get(0));
+                schedule_in_statement.setString(3,assigned_date);
+
+                int plane = Integer.parseInt(String.valueOf(assigned_seat.get(1)));
+                schedule_in_statement.setInt(5,plane);
+
+                int seat_no = Integer.parseInt(String.valueOf(assigned_seat.get(2))) ;
+                schedule_in_statement.setInt(6,seat_no+1);
+
+                System.out.print(assigned_date + " " +plane+ " " + (seat_no + 1));
+                System.out.println("");
+
+                schedule_in_statement.executeUpdate();
+                //if passenger wants date 2
+            }
+
+
+        }
+
+        fetch_seat_req_statement.close();
+
+
 
     }
 
