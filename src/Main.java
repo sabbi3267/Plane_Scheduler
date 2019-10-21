@@ -15,9 +15,11 @@ public class Main {
         try {
             Class.forName("org.sqlite.JDBC");
 
+            dropTable();
 
+            create();
 
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+            Connection connection = getConnection();
 
 
             String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
@@ -55,6 +57,9 @@ public class Main {
                 seating_req_in.executeUpdate();
                 System.out.println("Insert success record:" + (i + 1));
             }
+
+
+
 
 
             assign_vips();
@@ -175,7 +180,7 @@ public class Main {
     static int available(String date,int plane_tuid ) throws SQLException {
         // gets available seats on the current plane
         Connection connection;
-        connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+        connection = getConnection();
 
         //prepare the statement to get the data
         String avail_out = "Select COUNT(Customer_tuid) From Schedule WHERE Flight_Date = ? AND Flight_tuid = ? ";
@@ -257,7 +262,7 @@ public class Main {
 
     static void assign_vips() throws SQLException, ParseException {
 
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+        Connection connection = getConnection();
 
 
         String fetch_seating_req = "SELECT * FROM Seating ";
@@ -328,7 +333,7 @@ public class Main {
 
     static void assign_lux() throws SQLException, ParseException {
 
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.db");
+        Connection connection = getConnection();
 
 
         String fetch_seating_req = "SELECT * FROM Seating ";
@@ -397,5 +402,76 @@ public class Main {
 
     }
 
+
+    private static Connection getConnection() throws  SQLException   {
+        Connection con;    // Database path -- if it's new database, it will be created in the project folder
+        con = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane_test.db");
+        return con;
+    }
+
+
+    static void create()throws  SQLException{
+        Connection con;
+        con = getConnection();
+        Statement create;
+        create = con.createStatement();
+        create.executeUpdate("CREATE TABLE Fees (" +
+                "    TUID      INTEGER," +
+                "    SEAT_TYPE VARCHAR," +
+                "    Fee       INTEGER" +
+                ");");
+        create.executeUpdate("CREATE TABLE Flights (" +
+                "TUID         INTEGER PRIMARY KEY,"+
+                "PLANE_ID     INTEGER REFERENCES Planes (TUID),"+
+                "AIRPORT_CODE INTEGER,"+
+                "DEPART_GATE  INTEGER,"+
+               " DEPART_TIME  TIME);");
+        create.executeUpdate( "CREATE TABLE Passenger (" +
+                "    TUID       INTEGER UNIQUE" +
+                "                       PRIMARY KEY," +
+                "    First_I    VARCHAR," +
+                "    Middle_I   VARCHAR," +
+                "    Last_Name  STRING," +
+                "    Contact_no STRING" +
+                ");");
+        create.executeUpdate("CREATE TABLE Planes (" +
+                "    TUID     INTEGER NOT NULL" +
+                "                     PRIMARY KEY," +
+                "    Plane_ID INTEGER," +
+                "    MAX_VIP  INTEGER," +
+                "    MAX_LUX  INTEGER" +
+                ");");
+
+        create.executeUpdate("CREATE TABLE Schedule (" +
+                "    TUID          INTEGER UNIQUE" +
+                "                          PRIMARY KEY," +
+                "    Customer_tuid INTEGER," +
+                "    Flight_Date   STRING," +
+                "    Seat_type     VARCHAR," +
+                "    Flight_tuid   INTEGER," +
+                "    Seat_no       INTEGER" +
+                ");");
+        create.executeUpdate("CREATE TABLE Seating (" +
+                "    Cus_tuid   INTEGER," +
+                "    Plane_tuid STRING," +
+                "    Seat_type  STRING," +
+                "    Date       DATE" +
+                ");");
+
+
+
+
+    }
+
+
+    static  void dropTable()throws SQLException{
+        Connection con;
+        con = getConnection();
+        Statement drop;
+        drop = con.createStatement();
+        drop.execute("DROP TABLE Schedules; " );
+
+
+    }
 
 }

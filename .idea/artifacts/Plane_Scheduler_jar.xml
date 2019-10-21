@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Plane_Scheduler:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Plane_Scheduler_jar</output-path>
+    <root id="archive" name="Plane_Scheduler.jar">
+      <element id="module-output" name="Plane_Scheduler" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sqlite-jdbc-3.27.2.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
