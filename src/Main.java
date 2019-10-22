@@ -15,56 +15,21 @@ public class Main {
         try {
             Class.forName("org.sqlite.JDBC");
 
-            dropTable();
+            //dropTable();
 
-            create();
+            //create();
 
-            Connection connection = getConnection();
-
-
-            String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
-
-            String query2 = "INSERT INTO Seating  VALUES( ?, ?, ?, ?)";
-
-            // Create prepare statement
-            PreparedStatement passenger_in = connection.prepareStatement(query1);
-
-            PreparedStatement seating_req_in = connection.prepareStatement(query2);
-
-            // Get list product from file text
-            ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
-            ArrayList<Seating> listSeating = getListSeatingFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
-
-            // Insert list to db
-
-            for (int i = 0; i < listPassenger.size(); i++) {
-                passenger_in.setInt(1, listPassenger.get(i).getTu_id());
-                passenger_in.setString(2, listPassenger.get(i).getFirst_I());
-                passenger_in.setString(3, listPassenger.get(i).getMiddle_I());
-                passenger_in.setString(4, listPassenger.get(i).getLast_Name());
-                passenger_in.setString(5, listPassenger.get(i).getContact_no());
-                passenger_in.executeUpdate();
-                System.out.println("Insert success record:" + (i + 1));
-
-            }
-
-            for (int i = 0; i < listSeating.size(); i++) {
-                //preparedStatement2.setInt(1, listSeating.get(i).getTuid());
-                seating_req_in.setInt(1, listSeating.get(i).getCus_tuid());
-                seating_req_in.setString(2, listSeating.get(i).getPlane_tuid());
-                seating_req_in.setString(3, listSeating.get(i).getSeat_type());
-                seating_req_in.setString(4,  listSeating.get(i).getDate());
-                seating_req_in.executeUpdate();
-                System.out.println("Insert success record:" + (i + 1));
-            }
+            //insert()
 
 
 
 
+//
+//            assign_vips();
+//
+//            assign_lux() ;
 
-            assign_vips();
-
-            assign_lux() ;
+            print_report();
 
 
         } catch (Exception e) {
@@ -405,7 +370,7 @@ public class Main {
 
     private static Connection getConnection() throws  SQLException   {
         Connection con;    // Database path -- if it's new database, it will be created in the project folder
-        con = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane_test.db");
+        con = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler_V2\\plane_test.db");
         return con;
     }
 
@@ -425,7 +390,7 @@ public class Main {
                 "PLANE_ID     INTEGER REFERENCES Planes (TUID),"+
                 "AIRPORT_CODE INTEGER,"+
                 "DEPART_GATE  INTEGER,"+
-               " DEPART_TIME  TIME);");
+                " DEPART_TIME  TIME);");
         create.executeUpdate( "CREATE TABLE Passenger (" +
                 "    TUID       INTEGER UNIQUE" +
                 "                       PRIMARY KEY," +
@@ -470,6 +435,210 @@ public class Main {
         Statement drop;
         drop = con.createStatement();
         drop.execute("DROP TABLE Schedules; " );
+
+
+    }
+
+
+    static  void insert() throws SQLException{
+        Connection connection = getConnection();
+
+
+        String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
+
+        String query2 = "INSERT INTO Seating  VALUES( ?, ?, ?, ?)";
+
+        // Create prepare statement
+        PreparedStatement passenger_in = connection.prepareStatement(query1);
+
+        PreparedStatement seating_req_in = connection.prepareStatement(query2);
+
+        // Get list product from file text
+        ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
+        ArrayList<Seating> listSeating = getListSeatingFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
+
+        // Insert list to db
+
+        for (int i = 0; i < listPassenger.size(); i++) {
+            passenger_in.setInt(1, listPassenger.get(i).getTu_id());
+            passenger_in.setString(2, listPassenger.get(i).getFirst_I());
+            passenger_in.setString(3, listPassenger.get(i).getMiddle_I());
+            passenger_in.setString(4, listPassenger.get(i).getLast_Name());
+            passenger_in.setString(5, listPassenger.get(i).getContact_no());
+            passenger_in.executeUpdate();
+            System.out.println("Insert success record:" + (i + 1));
+
+        }
+
+        for (int i = 0; i < listSeating.size(); i++) {
+            //preparedStatement2.setInt(1, listSeating.get(i).getTuid());
+            seating_req_in.setInt(1, listSeating.get(i).getCus_tuid());
+            seating_req_in.setString(2, listSeating.get(i).getPlane_tuid());
+            seating_req_in.setString(3, listSeating.get(i).getSeat_type());
+            seating_req_in.setString(4,  listSeating.get(i).getDate());
+            seating_req_in.executeUpdate();
+            System.out.println("Insert success record:" + (i + 1));
+        }
+
+
+
+    }
+
+
+
+    static void print_report() throws SQLException{
+
+        Connection connection = getConnection();
+
+
+        String fetch_seating_req = "SELECT * FROM Schedule ";
+        Statement fetch_seat_req_statement = connection.createStatement();
+        ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
+
+
+
+        // iterate through the java resultset
+        while (rs.next()) {
+            int cus_tuid = rs.getInt("Customer_tuid");
+            int plane_tuid = rs.getInt("Flight_tuid");
+            String seat_type = rs.getString("Seat_type");
+            String date = rs.getString("Flight_Date");
+            int seat_no = rs.getInt("Seat_no");
+
+                if(plane_tuid==1){
+                    switch (seat_no){
+                        case 5:
+                            seat_type ="L";
+                            seat_no  = 1;
+                            break;
+                        case 6:
+                            seat_type ="L";
+                            seat_no = 2;
+                            break;
+                        case 7:
+                            seat_type ="L";
+                            seat_no = 3;
+                            break;
+                        case 8:
+                            seat_type ="L";
+                            seat_no = 4;
+                            break;
+                        case 9:
+                            seat_type ="L";
+                            seat_no = 5;
+                        case 10:
+                            seat_type ="L";
+                            seat_no = 6;
+
+                    }
+
+                }
+
+                if(plane_tuid==2){
+                    switch (seat_no){
+                     case 4:
+                        seat_type ="L";
+                        seat_no  = 1;
+                        break;
+                        case 5:
+                        seat_type ="L";
+                        seat_no = 2;
+                        break;
+                    case 6:
+                        seat_type ="L";
+                        seat_no = 3;
+                        break;
+                    case 7:
+                        seat_type ="L";
+                        seat_no = 4;
+                        break;
+                    case 8:
+                        seat_type ="L";
+                        seat_no = 5;
+                     break;
+                }
+
+            }
+             if(plane_tuid==3){
+                switch (seat_no){
+                    case 7:
+                        seat_type ="L";
+                        seat_no  = 1;
+                        break;
+                    case 8:
+                        seat_type ="L";
+                        seat_no = 2;
+                        break;
+                    case 9:
+                        seat_type ="L";
+                        seat_no = 3;
+                        break;
+                    case 10:
+                        seat_type ="L";
+                        seat_no = 4;
+                        break;
+                    case 11:
+                        seat_type ="L";
+                        seat_no = 5;
+                        break;
+                    case 12:
+                        seat_type ="L";
+                        seat_no = 6;
+                        break;
+                    case 13:
+                        seat_type ="L";
+                        seat_no = 7;
+                        break;
+                    case 14:
+                        seat_type ="L";
+                        seat_no = 8;
+                        break;
+
+                }
+
+            }
+
+
+            System.out.format("%s %s %s %s %s\n", cus_tuid, date, plane_tuid, seat_type , seat_no);
+
+
+
+
+        }
+
+        fetch_seat_req_statement.close();
+
+
+        Statement per_plane;
+        per_plane = connection.createStatement();
+        ResultSet report = per_plane.executeQuery("SELECT COUNT(Customer_tuid), Flight_Date, Flight_tuid, Seat_type" +
+                "FROM Schedule" +
+                "Group By Flight_Date, Flight_tuid, Seat_type" +
+                "Order BY Flight_Date, Flight_tuid, Seat_type desc");
+
+        while (rs.next()) {
+            int cus_tuid = rs.getInt("COUNT(Customer_tuid)");
+            int plane_tuid = rs.getInt("Flight_tuid");
+            String seat_type = rs.getString("Seat_type");
+            String date = rs.getString("Flight_Date");
+
+
+
+
+            System.out.format("%s %s %s %s \n", cus_tuid, date, plane_tuid, seat_type );
+
+
+
+
+        }
+
+
+        //int total_plane1 =
+
+        //int
+
+        report.close();
+
 
 
     }
