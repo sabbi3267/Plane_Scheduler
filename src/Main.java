@@ -15,51 +15,28 @@ public class Main {
         try {
             Class.forName("org.sqlite.JDBC");
 
-            dropTable();
+
+            Scanner sc = new Scanner(System.in);
+
+            //dropTable();
 
             create();
 
-            Connection connection = getConnection();
+           // while(true) {
 
+                //System.out.println("Please enter the name of the file or type" + " done " + " when done ");
 
-            String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
+                //String fileName = sc.nextLine();
 
-            String query2 = "INSERT INTO Seating  VALUES( ?, ?, ?, ?)";
+                //if(fileName.equals("Y")) {
 
-            // Create prepare statement
-            PreparedStatement passenger_in = connection.prepareStatement(query1);
+                   insertDB("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
 
-            PreparedStatement seating_req_in = connection.prepareStatement(query2);
-
-            // Get list product from file text
-            ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
-            ArrayList<Seating> listSeating = getListSeatingFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
-
-            // Insert list to db
-
-            for (int i = 0; i < listPassenger.size(); i++) {
-                passenger_in.setInt(1, listPassenger.get(i).getTu_id());
-                passenger_in.setString(2, listPassenger.get(i).getFirst_I());
-                passenger_in.setString(3, listPassenger.get(i).getMiddle_I());
-                passenger_in.setString(4, listPassenger.get(i).getLast_Name());
-                passenger_in.setString(5, listPassenger.get(i).getContact_no());
-                passenger_in.executeUpdate();
-                System.out.println("Insert success record:" + (i + 1));
-
-            }
-
-            for (int i = 0; i < listSeating.size(); i++) {
-                //preparedStatement2.setInt(1, listSeating.get(i).getTuid());
-                seating_req_in.setInt(1, listSeating.get(i).getCus_tuid());
-                seating_req_in.setString(2, listSeating.get(i).getPlane_tuid());
-                seating_req_in.setString(3, listSeating.get(i).getSeat_type());
-                seating_req_in.setString(4,  listSeating.get(i).getDate());
-                seating_req_in.executeUpdate();
-                System.out.println("Insert success record:" + (i + 1));
-            }
-
-
-
+               // }
+               // else if( fileName.equals("N")) {
+                    //break;
+                //}
+            //}
 
 
             assign_vips();
@@ -211,24 +188,32 @@ public class Main {
         int last_seat = available(date,plane_tuid);
 
 
-        int max = 0;
+        int maxvip = 0;
+        int maxlux = 0;
 
         switch (plane_tuid){
             case 1 :
-                max =10;
+                maxvip =4;
+                maxlux =6;
+
                 break;
             case 2 :
-                max = 8;
+                maxvip = 3;
+                maxlux =5;
                 break;
             case 3 :
-                max = 14;
+                maxvip = 6;
+                maxlux =8;
                 break;
 
         }
 
-        if (max > last_seat){
+        if (maxvip > last_seat){
 
 
+            return  Arrays.asList(date,plane_tuid,last_seat);
+        }
+        else if(maxlux > last_seat){
             return  Arrays.asList(date,plane_tuid,last_seat);
         }
         else {
@@ -464,12 +449,58 @@ public class Main {
     }
 
 
+    static  void insertDB(String fileName)throws SQLException{
+
+        ArrayList<Passenger> listPassenger = getListPassengerFromTextFile(fileName);
+        ArrayList<Seating> listSeating = getListSeatingFromTextFile(fileName);
+
+
+        Connection connection = getConnection();
+
+
+        String query1 = "INSERT INTO Passenger VALUES( ?, ?, ?, ?, ?)";
+
+        String query2 = "INSERT INTO Seating  VALUES( ?, ?, ?, ?)";
+
+        // Create prepare statement
+        PreparedStatement passenger_in = connection.prepareStatement(query1);
+
+        PreparedStatement seating_req_in = connection.prepareStatement(query2);
+
+        // Get list product from file text
+
+
+        // Insert list to db
+
+        for (int i = 0; i < listPassenger.size(); i++) {
+            passenger_in.setInt(1, listPassenger.get(i).getTu_id());
+            passenger_in.setString(2, listPassenger.get(i).getFirst_I());
+            passenger_in.setString(3, listPassenger.get(i).getMiddle_I());
+            passenger_in.setString(4, listPassenger.get(i).getLast_Name());
+            passenger_in.setString(5, listPassenger.get(i).getContact_no());
+            passenger_in.executeUpdate();
+            System.out.println("Insert success record:" + (i + 1));
+
+        }
+
+        for (int i = 0; i < listSeating.size(); i++) {
+            //preparedStatement2.setInt(1, listSeating.get(i).getTuid());
+            seating_req_in.setInt(1, listSeating.get(i).getCus_tuid());
+            seating_req_in.setString(2, listSeating.get(i).getPlane_tuid());
+            seating_req_in.setString(3, listSeating.get(i).getSeat_type());
+            seating_req_in.setString(4, listSeating.get(i).getDate());
+            seating_req_in.executeUpdate();
+            System.out.println("Insert success record:" + (i + 1));
+        }
+
+    }
+
     static  void dropTable()throws SQLException{
         Connection con;
         con = getConnection();
         Statement drop;
         drop = con.createStatement();
-        drop.execute("DROP TABLE Schedules; " );
+        drop.execute("DROP TABLE Schedule; " );
 
 
     }
