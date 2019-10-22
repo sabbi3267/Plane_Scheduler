@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static java.lang.System.exit;
+
 
 public class Main {
 
@@ -15,21 +17,51 @@ public class Main {
         try {
             Class.forName("org.sqlite.JDBC");
 
-            //dropTable();
-
-            //create();
-
-            //insert()
+            Scanner sc = new Scanner(System.in);
 
 
 
 
+            while (true) {
+                System.out.println("1 - TO Create the database");
+                System.out.println("2 - TO ADD files the database");
+                System.out.println("3 - TO Schedule ");
+                System.out.println("4 - TO Drop the tables database");
+                System.out.println("5 - TO Drop the tables database");
+
+
+                    switch (sc.nextInt()){
+
+                        case  1 :
+                            create();
+                            break;
+                        case 2 :
+                            insert("plane.txt");
+                            break;
+//                            while (true){
+//                                System.out.println("Enter File name");
+//                                System.out.println("Enter done to when complelete");
+//                                if(!sc.next().equals("done")){
 //
-//            assign_vips();
 //
-//            assign_lux() ;
+//                                }
+//                            }
 
-            print_report();
+
+                        case 3:
+                            assign_vips();
+                            assign_lux() ;
+                            print_booking();
+                            break;
+                        case 4:
+                            dropTable();
+                            break;
+                        case 5:
+                           System.exit(0);
+
+                    }
+
+            }
 
 
         } catch (Exception e) {
@@ -376,21 +408,42 @@ public class Main {
 
 
     static void create()throws  SQLException{
+
         Connection con;
         con = getConnection();
         Statement create;
         create = con.createStatement();
+
+
+        // fees
         create.executeUpdate("CREATE TABLE Fees (" +
                 "    TUID      INTEGER," +
                 "    SEAT_TYPE VARCHAR," +
                 "    Fee       INTEGER" +
                 ");");
+        create.executeUpdate("INSERT INTO Fees (TUID, Seat_type, Fee)" +
+                "VALUES (1 , 'V', 4000);");
+        create.executeUpdate("INSERT INTO Fees (TUID, Seat_type, Fee)" +
+                "VALUES (2 , 'L', 2500);");
+
+
+        //flights
         create.executeUpdate("CREATE TABLE Flights (" +
                 "TUID         INTEGER PRIMARY KEY,"+
-                "PLANE_ID     INTEGER REFERENCES Planes (TUID),"+
+                "PLANE_ID     INTEGER ,"+
                 "AIRPORT_CODE INTEGER,"+
                 "DEPART_GATE  INTEGER,"+
                 " DEPART_TIME  TIME);");
+        create.executeUpdate("INSERT INTO Flights (TUID, Plane_ID, AIRPORT_CODE, DEPART_GATE, DEPART_TIME)" +
+                "VALUES (1 ,1 , 'MBS', 3 , '7:00');");
+        create.executeUpdate("INSERT INTO Flights (TUID, Plane_ID, AIRPORT_CODE, DEPART_GATE, DEPART_TIME)" +
+                "VALUES (2 ,2 , 'MBS', 1 , '13:00');");
+        create.executeUpdate("INSERT INTO Flights (TUID, Plane_ID, AIRPORT_CODE, DEPART_GATE, DEPART_TIME)" +
+                "VALUES (3 ,3 , 'MBS', 2 , '21:00');");
+
+
+
+        //passenger
         create.executeUpdate( "CREATE TABLE Passenger (" +
                 "    TUID       INTEGER UNIQUE" +
                 "                       PRIMARY KEY," +
@@ -399,6 +452,8 @@ public class Main {
                 "    Last_Name  STRING," +
                 "    Contact_no STRING" +
                 ");");
+
+        //planes
         create.executeUpdate("CREATE TABLE Planes (" +
                 "    TUID     INTEGER NOT NULL" +
                 "                     PRIMARY KEY," +
@@ -406,6 +461,14 @@ public class Main {
                 "    MAX_VIP  INTEGER," +
                 "    MAX_LUX  INTEGER" +
                 ");");
+
+
+        create.executeUpdate("INSERT INTO Planes (TUID, Plane_ID, MAX_VIP, MAX_LUX )" +
+                "VALUES (1 ,'RC407' , 4, 6 );");
+        create.executeUpdate("INSERT INTO Planes (TUID, Plane_ID, MAX_VIP, MAX_LUX )" +
+                "VALUES (2 ,'TR407' , 3, 5 );");
+        create.executeUpdate("INSERT INTO Planes (TUID, Plane_ID, MAX_VIP, MAX_LUX )" +
+                "VALUES (3 ,'KR381' , 6, 8 );");
 
         create.executeUpdate("CREATE TABLE Schedule (" +
                 "    TUID          INTEGER UNIQUE" +
@@ -434,13 +497,18 @@ public class Main {
         con = getConnection();
         Statement drop;
         drop = con.createStatement();
-        drop.execute("DROP TABLE Schedules; " );
+        drop.execute("DROP TABLE Schedule; " );
+        drop.execute("DROP TABLE Seating; " );
+        drop.execute("DROP TABLE Passenger; " );
+        drop.execute("DROP TABLE Fees; " );
+        drop.execute("DROP TABLE Flights; " );
+        drop.execute("DROP TABLE Planes; " );
 
 
     }
 
 
-    static  void insert() throws SQLException{
+    static  void insert(String fileName) throws SQLException{
         Connection connection = getConnection();
 
 
@@ -454,8 +522,8 @@ public class Main {
         PreparedStatement seating_req_in = connection.prepareStatement(query2);
 
         // Get list product from file text
-        ArrayList<Passenger> listPassenger = getListPassengerFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
-        ArrayList<Seating> listSeating = getListSeatingFromTextFile("C:\\Users\\nalam\\IdeaProjects\\Plane_Scheduler\\plane.txt");
+        ArrayList<Passenger> listPassenger = getListPassengerFromTextFile(fileName);
+        ArrayList<Seating> listSeating = getListSeatingFromTextFile(fileName);
 
         // Insert list to db
 
@@ -486,24 +554,34 @@ public class Main {
 
 
 
-    static void print_report() throws SQLException{
+    static void print_booking() throws SQLException{
 
         Connection connection = getConnection();
 
 
-        String fetch_seating_req = "SELECT * FROM Schedule ";
+
         Statement fetch_seat_req_statement = connection.createStatement();
-        ResultSet rs = fetch_seat_req_statement.executeQuery(fetch_seating_req);
 
+        ResultSet rs = fetch_seat_req_statement.executeQuery("SELECT * FROM Schedule Natural JOIN Passenger LEFT JOIN Flights WHERE Flights.TUID = Schedule.Flight_tuid ;"
 
+                );
+
+        System.out.format("%10s %10s %10s %20s %20s%20s %10s %10s %10s %10s %10s %10s\n", "Customer ID", "First I","Middle I","Last Name", "Contact NO." ,"date", "Plane No", "Seat_type" , "Seat_no" ,"AIRPORT", "DEPART_GATE" , "DEPART_TIME");
 
         // iterate through the java resultset
         while (rs.next()) {
             int cus_tuid = rs.getInt("Customer_tuid");
+            String f_I = rs.getString("First_I");
+            String m_I = rs.getString("Middle_I");
+            String last_name = rs.getString("Last_name");
+            String contact_no = rs.getString("Contact_no");
+            String date = rs.getString("Flight_Date");
             int plane_tuid = rs.getInt("Flight_tuid");
             String seat_type = rs.getString("Seat_type");
-            String date = rs.getString("Flight_Date");
             int seat_no = rs.getInt("Seat_no");
+            String airport = rs.getString("AIRPORT_CODE");
+            String gate = rs.getString("DEPART_GATE");
+            String time = rs.getString("DEPART_TIME");
 
                 if(plane_tuid==1){
                     switch (seat_no){
@@ -526,10 +604,11 @@ public class Main {
                         case 9:
                             seat_type ="L";
                             seat_no = 5;
+                            break;
                         case 10:
                             seat_type ="L";
                             seat_no = 6;
-
+                        break;
                     }
 
                 }
@@ -599,7 +678,7 @@ public class Main {
             }
 
 
-            System.out.format("%s %s %s %s %s\n", cus_tuid, date, plane_tuid, seat_type , seat_no);
+            System.out.format("%10s %10s %10s %20s %20s %20s %10s %10s %10s %10s %10s %10s\n", cus_tuid, f_I,m_I,last_name,contact_no ,date, plane_tuid, seat_type , seat_no, airport, gate, time);
 
 
 
@@ -609,18 +688,29 @@ public class Main {
         fetch_seat_req_statement.close();
 
 
+
+
+
+
+    }
+
+
+    static void print_report() throws  SQLException{
+
+        Connection connection = getConnection();
+
         Statement per_plane;
         per_plane = connection.createStatement();
-        ResultSet report = per_plane.executeQuery("SELECT COUNT(Customer_tuid), Flight_Date, Flight_tuid, Seat_type" +
-                "FROM Schedule" +
-                "Group By Flight_Date, Flight_tuid, Seat_type" +
-                "Order BY Flight_Date, Flight_tuid, Seat_type desc");
+        ResultSet report = per_plane.executeQuery("SELECT s.Customer_tuid,p.First_I, p.Middle_I, p.Last_Name, p.Contact_no , s.Flight_date, s.Flight_tuid , s.Seat_type, s.seat_no" +
+                "From Schedule as s" +
+                "left Join Passenger as p" +
+                "Where s.Customer_tuid = p.TUID" );
 
-        while (rs.next()) {
-            int cus_tuid = rs.getInt("COUNT(Customer_tuid)");
-            int plane_tuid = rs.getInt("Flight_tuid");
-            String seat_type = rs.getString("Seat_type");
-            String date = rs.getString("Flight_Date");
+        while (report.next()) {
+            int cus_tuid = report.getInt("COUNT(Customer_tuid)");
+            int plane_tuid = report.getInt("Flight_tuid");
+            String seat_type = report.getString("Seat_type");
+            String date = report.getString("Flight_Date");
 
 
 
@@ -638,9 +728,6 @@ public class Main {
         //int=
 
         report.close();
-
-
-
     }
 
 }
